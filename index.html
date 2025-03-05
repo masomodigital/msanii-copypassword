@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure Login Page</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -76,7 +75,6 @@
 </div>
 
 <script>
-    const secretKey = "MySecretKey12345"; // Keep this key safe
     const verifyButton = document.getElementById("verifyButton");
     const copyButton = document.getElementById("copyButton");
     const phoneNumberInput = document.getElementById("phoneNumber");
@@ -87,10 +85,10 @@
         const phoneNumber = phoneNumberInput.value.trim();
         if (phoneNumber === "") {
             message.textContent = "Please enter your phone number.";
+            message.style.color = "red";
             return;
         }
         
-        // Replace with your actual Google Apps Script Web App URL
         const scriptURL = "https://script.google.com/macros/s/AKfycbwnLrBpTPRtblKmp4bYRp34fdpi9B-2yZqUKS8yl6C9q6wiuDgIEMJgxBw7409fT1mw/exec";
         
         fetch(scriptURL + "?phone=" + encodeURIComponent(phoneNumber))
@@ -98,24 +96,26 @@
             .then(data => {
                 if (data.access === "granted") {
                     message.textContent = "Access granted! You can copy the password now.";
+                    message.style.color = "green";
                     copyButton.style.display = "block";
                 } else {
                     message.textContent = "Access denied! Your phone number is not registered.";
+                    message.style.color = "red";
                     copyButton.style.display = "none";
                 }
             })
             .catch(error => {
                 console.error("Error checking access:", error);
                 message.textContent = "Error verifying access. Please try again.";
+                message.style.color = "red";
             });
     });
     
     copyButton.addEventListener("click", function () {
         const password = passwordField.value;
-        const encryptedPassword = CryptoJS.AES.encrypt(password, secretKey).toString();
         
-        navigator.clipboard.writeText(encryptedPassword).then(function () {
-            alert("Encrypted password copied! Paste it on the login page.");
+        navigator.clipboard.writeText(password).then(function () {
+            alert("Password copied! Paste it on the login page.");
         }).catch(function (err) {
             console.error("Failed to copy password: ", err);
             alert("Failed to copy password. Please try again.");
@@ -125,3 +125,5 @@
 
 </body>
 </html>
+
+
