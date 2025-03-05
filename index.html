@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Login Page</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 400px;
+        }
+
+        button {
+            background-color: #4CAF50; 
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        button:active {
+            background-color: #45a049;
+        }
+
+        p {
+            font-size: 14px;
+            color: #555;
+            margin-top: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #copyButton {
+            display: none; /* Initially hidden */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Enter Your Phone Number</h2>
+    <input type="text" id="phoneNumber" placeholder="Enter phone number" required>
+    <button id="verifyButton">Verify Access</button>
+    
+    <textarea id="hiddenPassword" style="display: none;">DAN23406633XY</textarea>
+    <button id="copyButton">COPY LOGIN PASSWORD</button>
+    
+    <p id="message">Click Verify Access to check your registration.</p>
+</div>
+
+<script>
+    const secretKey = "MySecretKey12345"; // Keep this key safe
+    const verifyButton = document.getElementById("verifyButton");
+    const copyButton = document.getElementById("copyButton");
+    const phoneNumberInput = document.getElementById("phoneNumber");
+    const message = document.getElementById("message");
+    const passwordField = document.getElementById("hiddenPassword");
+    
+    verifyButton.addEventListener("click", function () {
+        const phoneNumber = phoneNumberInput.value.trim();
+        if (phoneNumber === "") {
+            message.textContent = "Please enter your phone number.";
+            return;
+        }
+        
+        // Replace with your actual Google Apps Script Web App URL
+        const scriptURL = "https://script.google.com/macros/s/AKfycbxw-2cz7h6CMFqW2McQY-6GetiLqvA7f7J-IkBBvdi0NUHCOy6LgyxytxxmNMNtaVZW/exec";
+        
+        fetch(scriptURL + "?phone=" + encodeURIComponent(phoneNumber))
+            .then(response => response.json())
+            .then(data => {
+                if (data.access === "granted") {
+                    message.textContent = "Access granted! You can copy the password now.";
+                    copyButton.style.display = "block";
+                } else {
+                    message.textContent = "Access denied! Your phone number is not registered.";
+                    copyButton.style.display = "none";
+                }
+            })
+            .catch(error => {
+                console.error("Error checking access:", error);
+                message.textContent = "Error verifying access. Please try again.";
+            });
+    });
+    
+    copyButton.addEventListener("click", function () {
+        const password = passwordField.value;
+        const encryptedPassword = CryptoJS.AES.encrypt(password, secretKey).toString();
+        
+        navigator.clipboard.writeText(encryptedPassword).then(function () {
+            alert("Encrypted password copied! Paste it on the login page.");
+        }).catch(function (err) {
+            console.error("Failed to copy password: ", err);
+            alert("Failed to copy password. Please try again.");
+        });
+    });
+</script>
+
+</body>
+</html>
